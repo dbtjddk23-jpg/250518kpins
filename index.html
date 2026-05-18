@@ -1,0 +1,3108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visual Factory · 이미지 제작 자동화 허브</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --border: #e5e5e5;
+    --border-strong: #d4d4d4;
+    --text: #171717;
+    --text-muted: #737373;
+    --text-soft: #a3a3a3;
+    --accent: #171717;
+    --accent-hover: #404040;
+    --danger: #dc2626;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
+    --radius: 8px;
+    --radius-sm: 6px;
+  }
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Noto Sans KR", sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font-family: inherit; cursor: pointer; }
+  input, select { font-family: inherit; font-size: 14px; }
+
+  /* ===== Header ===== */
+  header.app-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: grid; place-items: center;
+    color: #fff; font-weight: 700;
+  }
+  .brand h1 {
+    font-size: 16px; font-weight: 600; letter-spacing: -0.2px;
+  }
+  .brand .subtitle {
+    font-size: 12px; color: var(--text-muted); font-weight: 400;
+  }
+
+  /* ===== Tabs ===== */
+  .tabs {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    gap: 4px;
+  }
+  .tab {
+    padding: 14px 20px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+  .tab-num {
+    display: inline-block;
+    width: 20px; height: 20px;
+    background: #f0f0f0;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 8px;
+    color: var(--text-muted);
+  }
+  .tab.active .tab-num { background: var(--accent); color: #fff; }
+
+  /* ===== Layout ===== */
+  main {
+    height: calc(100vh - 109px);
+    overflow: hidden;
+    position: relative;
+  }
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 24px;
+  }
+  .canvas-area {
+    background: var(--bg);
+    overflow: auto;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  /* ===== Sidebar Components ===== */
+  .section {
+    margin-bottom: 28px;
+  }
+  .section:last-child { margin-bottom: 0; }
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  .field { margin-bottom: 12px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .input, .select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--text);
+    transition: border 0.15s;
+  }
+  .input:focus, .select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .input-row { display: flex; gap: 8px; align-items: center; }
+  .input-row .input { flex: 1; }
+  .unit { color: var(--text-soft); font-size: 12px; }
+
+  .btn {
+    padding: 10px 16px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary {
+    background: #FFEB00;
+    color: #000000;
+    border-color: #FFEB00;
+    font-weight: 600;
+  }
+  .btn.primary:hover {
+    background: #F5DC00;
+    border-color: #F5DC00;
+    color: #000000;
+  }
+  .btn.full { width: 100%; }
+  .btn.sm { padding: 6px 10px; font-size: 12px; }
+  .btn-icon {
+    width: 32px; height: 32px;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--text);
+    display: grid; place-items: center;
+  }
+  .btn-icon:hover { border-color: var(--accent); }
+
+  .range-row {
+    display: flex; gap: 12px; align-items: center;
+  }
+  .range-row input[type="range"] { flex: 1; }
+  .range-value {
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    min-width: 40px;
+    text-align: right;
+    color: var(--text-muted);
+  }
+
+  /* ===== Drop Zones / Image Boxes ===== */
+  .dropzone {
+    border: 2px dashed var(--border-strong);
+    border-radius: var(--radius);
+    padding: 32px 16px;
+    text-align: center;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    cursor: pointer;
+    background: #fafafa;
+  }
+  .dropzone:hover, .dropzone.dragover {
+    border-color: var(--accent);
+    background: #f5f5f5;
+  }
+  .dropzone.paste-target {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+  }
+  .layer-mini-drop.paste-target {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+  }
+  .dropzone-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+    opacity: 0.5;
+  }
+  .dropzone-title { font-size: 13px; color: var(--text); font-weight: 500; }
+  .dropzone-sub { font-size: 11px; color: var(--text-soft); margin-top: 4px; }
+  .dropzone.has-file {
+    padding: 8px;
+    border-style: solid;
+    border-color: var(--border);
+    background: #fff;
+  }
+  .dropzone.has-file .dz-thumb {
+    width: 100%;
+    height: 80px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color:
+      linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+      linear-gradient(-45deg, #f0f0f0 25%, transparent 25%);
+  }
+  .file-info {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 4px 0; font-size: 11px; color: var(--text-soft);
+  }
+  .file-clear {
+    background: none; border: none; color: var(--text-soft); cursor: pointer;
+    font-size: 12px; padding: 0;
+  }
+  .file-clear:hover { color: var(--danger); }
+
+  /* ===== Canvas Stages ===== */
+  .stage-wrap {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 16px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .stage-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+  .stage {
+    position: relative;
+    background:
+      linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+      linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+      linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    overflow: hidden;
+  }
+  .stage canvas {
+    display: block;
+    position: absolute; top: 0; left: 0;
+  }
+  .stage .padding-guide {
+    position: absolute;
+    border: 1px dashed rgba(220, 38, 38, 0.5);
+    pointer-events: none;
+    box-sizing: border-box;
+  }
+
+  /* ===== Layer List (Feature 2) ===== */
+  .layer-list {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .layer-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    background: #fff;
+    transition: border 0.15s;
+  }
+  .layer-item.active { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,0,0,0.04); }
+  .layer-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+  }
+  .layer-title { font-size: 12px; font-weight: 500; }
+  .layer-actions { display: flex; gap: 4px; }
+  .layer-mini-drop {
+    border: 1px dashed var(--border-strong);
+    border-radius: 4px;
+    padding: 16px 8px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .layer-mini-drop:hover, .layer-mini-drop.dragover {
+    border-color: var(--accent);
+    background: #fafafa;
+  }
+  .layer-mini-drop.has-file {
+    padding: 4px;
+    border-style: solid;
+  }
+  .layer-thumb {
+    width: 100%; height: 48px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  .layer-controls {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 8px;
+    font-size: 11px;
+    margin-top: 8px;
+    align-items: center;
+  }
+  .layer-controls label { color: var(--text-muted); }
+  .layer-controls input { padding: 4px 8px; font-size: 11px; border: 1px solid var(--border); border-radius: 4px; width: 100%; }
+
+  /* ===== Stage interactions for feature 2 ===== */
+  .stage-interactive {
+    cursor: default;
+    user-select: none;
+  }
+  .stage-object {
+    position: absolute;
+    border: 1px solid transparent;
+    transition: border 0.1s;
+  }
+  .stage-object.selected {
+    border-color: var(--accent);
+  }
+  .stage-object img {
+    width: 100%; height: 100%; display: block;
+    pointer-events: none;
+    object-fit: contain;
+  }
+  .resize-handle {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: #fff;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+  }
+  .resize-handle.tl { top: -5px; left: -5px; cursor: nwse-resize; }
+  .resize-handle.tr { top: -5px; right: -5px; cursor: nesw-resize; }
+  .resize-handle.bl { bottom: -5px; left: -5px; cursor: nesw-resize; }
+  .resize-handle.br { bottom: -5px; right: -5px; cursor: nwse-resize; }
+  .stage-object.dragging { opacity: 0.8; }
+  .stage-object .move-area {
+    position: absolute; inset: 0; cursor: move;
+  }
+
+  /* ===== Banner Stages ===== */
+  .banners-row {
+    display: flex; flex-wrap: wrap; gap: 24px; justify-content: center;
+  }
+  #bannersGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    justify-content: center;
+    width: 100%;
+    max-width: 1500px;
+    align-content: start;
+  }
+  /* When fewer than 3 variations exist, cap column count to that number */
+  #bannersGrid[data-count="1"] { grid-template-columns: repeat(1, minmax(0, 540px)); }
+  #bannersGrid[data-count="2"] { grid-template-columns: repeat(2, minmax(0, 500px)); }
+  .variation-stage {
+    background: var(--surface);
+    border: 2px solid transparent;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+    min-width: 0;
+  }
+  .variation-stage.active {
+    border-color: var(--accent);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  }
+  .variation-stage .stage-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+  .variation-stage.active .stage-label {
+    color: var(--text);
+  }
+  .variation-stage .stage {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    position: relative;
+  }
+  .variation-stage canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border: 1px solid var(--border);
+  }
+
+  /* ===== Color picker ===== */
+  .color-input {
+    width: 100%; height: 36px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    cursor: pointer; padding: 2px;
+    background: #fff;
+  }
+
+  /* ===== Toggle Group ===== */
+  .toggle-group {
+    display: flex;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .toggle-group button {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: #fff;
+    color: var(--text-muted);
+    font-size: 12px;
+    border-right: 1px solid var(--border-strong);
+    transition: all 0.15s;
+  }
+  .toggle-group button:last-child { border-right: none; }
+  .toggle-group button.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* ===== Empty state ===== */
+  .empty-state {
+    color: var(--text-soft);
+    font-size: 13px;
+    text-align: center;
+    padding: 80px 32px;
+  }
+  .empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+  }
+
+  /* ===== Tab Pane visibility ===== */
+  .tab-pane { display: none; height: 100%; width: 100%; }
+  .tab-pane.active {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: 100%;
+    width: 100%;
+  }
+
+  /* ===== Toast ===== */
+  .toast {
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 1000;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+
+  /* ===== Color Palette ===== */
+  .color-picker-wrap { display: block; }
+  .color-swatch {
+    width: 100%; height: 36px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 10px 4px 4px;
+    cursor: pointer;
+    transition: border 0.15s;
+    font-family: inherit;
+  }
+  .color-swatch:hover { border-color: var(--accent); }
+  .color-swatch .swatch-color {
+    width: 28px; height: 28px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.08);
+    flex-shrink: 0;
+  }
+  .color-swatch .swatch-text {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.3px;
+  }
+  .palette-popover {
+    position: fixed;
+    z-index: 2000;
+    background: #fff;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    padding: 12px;
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+  }
+  .palette-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .palette-dot {
+    width: 22px; height: 22px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.06);
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .palette-dot:hover { transform: scale(1.15); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+  .palette-dot.selected {
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  .palette-popover .palette-tip {
+    font-size: 11px;
+    color: var(--text-soft);
+    margin-top: 6px;
+    text-align: center;
+  }
+
+  /* Swap-order button between main/sub fields in vcard */
+  .vcard-swap-row {
+    display: flex; align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+  }
+  .vcard-swap-row::before,
+  .vcard-swap-row::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .vcard-swap-btn {
+    border: 1px solid var(--border-strong);
+    background: #fff;
+    padding: 4px 10px;
+    font-size: 11px;
+    border-radius: 12px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .vcard-swap-btn:hover { border-color: var(--accent); color: var(--text); }
+  .vcard-swap-btn.swapped {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  /* Font size slider in vcard */
+  .size-slider {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--text-muted);
+  }
+  .size-slider input[type="range"] {
+    width: 80px;
+    accent-color: var(--accent);
+  }
+  .size-slider .size-val {
+    font-variant-numeric: tabular-nums;
+    min-width: 32px; text-align: right;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* History panel */
+  .history-empty {
+    font-size: 11px;
+    color: var(--text-soft);
+    text-align: center;
+    padding: 16px 0;
+  }
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
+  .history-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    transition: border 0.15s;
+  }
+  .history-item:hover { border-color: var(--accent); }
+  .history-thumb {
+    width: 56px; height: 56px;
+    border-radius: 4px;
+    background-size: cover;
+    background-position: center;
+    background-color: #f5f5f5;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+  }
+  .history-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .history-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    border: 1px solid transparent;
+    border-radius: 3px;
+    padding: 2px 4px;
+    margin-left: -4px;
+    background: transparent;
+    width: 100%;
+    font-family: inherit;
+  }
+  .history-name:hover { border-color: var(--border); }
+  .history-name:focus { border-color: var(--accent); outline: none; background: #fff; }
+  .history-time { font-size: 10px; color: var(--text-soft); }
+  .history-actions { display: flex; gap: 4px; align-items: flex-end; }
+  .history-actions button {
+    border: 1px solid var(--border-strong);
+    background: #fff;
+    padding: 4px 8px;
+    font-size: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .history-actions button:hover { border-color: var(--accent); color: var(--text); }
+  .history-actions .h-delete:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* Variation cards */
+  .variation-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin-bottom: 10px;
+    background: #fff;
+    transition: border 0.15s, box-shadow 0.15s;
+  }
+  .variation-card.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.04);
+  }
+  .vcard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+  .vcard-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .vcard-badge {
+    font-size: 10px;
+    color: var(--text-soft);
+    margin-left: 6px;
+    font-weight: 400;
+  }
+  .vcard-actions { display: flex; gap: 4px; }
+  .vcard-btn {
+    border: 1px solid var(--border-strong);
+    background: #fff;
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .vcard-btn:hover { border-color: var(--accent); color: var(--text); }
+  .vcard-btn.activate {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .vcard-btn.activate.is-active { opacity: 0.5; cursor: default; }
+  .vcard-btn.delete:hover { border-color: var(--danger); color: var(--danger); }
+  .vcard-field {
+    margin-bottom: 8px;
+  }
+  .vcard-field:last-child { margin-bottom: 0; }
+  .vcard-field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .vcard-field .label-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .vcard-field .toggle-group { font-size: 10px; }
+  .vcard-field .toggle-group button { padding: 4px 8px; font-size: 10px; }
+  .vcard-field input, .vcard-field textarea {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--text);
+    font-size: 12px;
+    font-family: inherit;
+    line-height: 1.4;
+  }
+  .vcard-field input:focus, .vcard-field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .vcard-field textarea { resize: vertical; }
+  .vcard-field input:disabled, .vcard-field textarea:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .vcard-hint {
+    font-size: 10px; color: var(--text-soft); margin-top: 2px;
+  }
+
+  /* Variation tabs (legacy compact mode — kept for spacing) */
+  .variation-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .vtab {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    padding: 0;
+  }
+  .vtab:hover { border-color: var(--accent); color: var(--text); }
+  .vtab.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .vtab.vtab-add {
+    color: var(--text-muted);
+    font-size: 16px;
+    font-weight: 400;
+    background: #fafafa;
+  }
+  .vtab.vtab-add:hover { color: var(--accent); background: #fff; }
+  .variation-meta {
+    color: var(--text-soft);
+    font-weight: 400;
+    font-size: 11px;
+  }
+
+  /* Layer center button */
+  .layer-action-row {
+    display: flex; gap: 4px; margin-top: 6px;
+  }
+  .layer-action-row .btn {
+    flex: 1;
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  /* ===== Scrollbar ===== */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 10px; border: 2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: #a3a3a3; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <div class="brand-mark">VF</div>
+    <div>
+      <h1>Visual Factory</h1>
+      <div class="subtitle">이미지 제작 자동화 허브</div>
+    </div>
+  </div>
+  <div style="font-size: 12px; color: var(--text-muted);">v1.0 · Beta</div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab active" data-tab="resize" role="tab">
+    <span class="tab-num">1</span>이미지 리사이징
+  </button>
+  <button class="tab" data-tab="combine" role="tab">
+    <span class="tab-num">2</span>오브젝트 조합
+  </button>
+  <button class="tab" data-tab="banner" role="tab">
+    <span class="tab-num">3</span>배너 (Meta 1080)
+  </button>
+</nav>
+
+<main>
+  <!-- ===================== TAB 1: RESIZE ===================== -->
+  <section class="tab-pane active" data-pane="resize">
+    <aside class="sidebar">
+      <div class="section">
+        <div class="section-title">1. 이미지 업로드</div>
+        <div id="resizeDropzone" class="dropzone" tabindex="0">
+          <div class="dropzone-icon">⬆</div>
+          <div class="dropzone-title">PNG 파일 업로드</div>
+          <div class="dropzone-sub">클릭 · 드래그 앤 드롭 · 붙여넣기 (Ctrl+V)</div>
+          <input type="file" id="resizeFileInput" accept="image/png" hidden>
+        </div>
+        <div id="resizeFileInfo" class="file-info" style="display:none;">
+          <span id="resizeFileName"></span>
+          <button class="file-clear" id="resizeClear">제거</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">2. 출력 사이즈</div>
+        <div class="field">
+          <label>프리셋</label>
+          <select class="select" id="resizePreset">
+            <option value="">직접 입력</option>
+            <option value="1080,1080">정사각 1080 × 1080</option>
+            <option value="1200,628">가로 1200 × 628</option>
+            <option value="1920,1080">FHD 1920 × 1080</option>
+            <option value="1080,1920">세로 1080 × 1920</option>
+            <option value="800,800">정사각 800 × 800</option>
+            <option value="640,640">정사각 640 × 640</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>너비 / 높이 (px)</label>
+          <div class="input-row">
+            <input class="input" type="number" id="resizeW" value="1080" min="1">
+            <span class="unit">×</span>
+            <input class="input" type="number" id="resizeH" value="1080" min="1">
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">3. 이미지 조정</div>
+        <div class="field">
+          <label>확대 / 축소 <span style="color: var(--text-soft); font-weight: normal;">(이미지가 가이드 영역에 맞춰 자동 조정됨)</span></label>
+          <div class="range-row">
+            <input type="range" id="resizeScale" min="10" max="300" value="100" step="1">
+            <span class="range-value"><span id="resizeScaleVal">100</span>%</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>가이드 영역 (패딩값)</label>
+          <div class="range-row">
+            <input type="range" id="resizePadding" min="0" max="200" value="30" step="1">
+            <span class="range-value"><span id="resizePaddingVal">30</span>px</span>
+          </div>
+        </div>
+        <div class="field">
+          <button class="btn full" id="resizeCenter">↔ 센터 정렬</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">4. 배경 설정</div>
+        <div class="field">
+          <label>배경 타입</label>
+          <div class="toggle-group" id="resizeBgType">
+            <button class="active" data-bg="transparent">투명</button>
+            <button data-bg="color">단색</button>
+          </div>
+        </div>
+        <div class="field" id="resizeBgColorField" style="display:none;">
+          <label>배경 색상</label>
+          <input type="hidden" id="resizeBgColor" value="#FFFFFF" data-palette>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">5. 내보내기</div>
+        <button class="btn primary full" id="resizeExport">투명 PNG 저장</button>
+        <div id="resizeExportHint" style="font-size: 11px; color: var(--text-soft); margin-top: 8px; text-align: center;">
+          배경 없는 투명 PNG로 추출됩니다
+        </div>
+      </div>
+    </aside>
+
+    <div class="canvas-area">
+      <div class="stage-wrap">
+        <div class="stage-label">
+          <span id="resizeStageLabel">1080 × 1080</span> · 가이드 영역 <span id="resizeGuideLabel">30px</span>
+        </div>
+        <div class="stage" id="resizeStage" style="width: 480px; height: 480px;">
+          <canvas id="resizeCanvas"></canvas>
+          <div class="padding-guide" id="resizeGuide"></div>
+        </div>
+        <div style="font-size: 11px; color: var(--text-soft);">
+          미리보기 · 빨간 점선 = 가이드 영역
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TAB 2: COMBINE ===================== -->
+  <section class="tab-pane" data-pane="combine">
+    <aside class="sidebar">
+      <div class="section">
+        <div class="section-title">캔버스 설정</div>
+        <div class="field">
+          <label>프리셋</label>
+          <select class="select" id="combinePreset">
+            <option value="1080,1080">정사각 1080 × 1080</option>
+            <option value="1200,628">가로 1200 × 628</option>
+            <option value="1920,1080">FHD 1920 × 1080</option>
+            <option value="1080,1920">세로 1080 × 1920</option>
+            <option value="">직접 입력</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>너비 / 높이 (px)</label>
+          <div class="input-row">
+            <input class="input" type="number" id="combineW" value="1080" min="1">
+            <span class="unit">×</span>
+            <input class="input" type="number" id="combineH" value="1080" min="1">
+          </div>
+        </div>
+        <div class="field">
+          <label>내부 여백 가이드</label>
+          <div class="range-row">
+            <input type="range" id="combinePadding" min="0" max="200" value="30" step="1">
+            <span class="range-value"><span id="combinePaddingVal">30</span>px</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">배경 설정</div>
+        <div class="field">
+          <label>배경 타입</label>
+          <div class="toggle-group" id="combineBgType">
+            <button class="active" data-bg="transparent">투명</button>
+            <button data-bg="color">단색</button>
+          </div>
+        </div>
+        <div class="field" id="combineBgColorField" style="display:none;">
+          <label>배경 색상</label>
+          <input type="hidden" id="combineBgColor" value="#FFFFFF" data-palette>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">레이어 (<span id="layerCount">2</span>/3)</div>
+        <div class="layer-list" id="layerList"></div>
+        <button class="btn full sm" id="addLayer" style="margin-top: 10px;">+ 레이어 추가</button>
+      </div>
+
+      <div class="section">
+        <div class="section-title">내보내기</div>
+        <button class="btn primary full" id="combineExport">PNG 내보내기</button>
+      </div>
+    </aside>
+
+    <div class="canvas-area">
+      <div class="stage-wrap">
+        <div class="stage-label">
+          <span id="combineStageLabel">1080 × 1080</span> · 캔버스 위 이미지를 드래그하여 배치하세요
+        </div>
+        <div class="stage stage-interactive" id="combineStage" style="width: 480px; height: 480px;">
+          <canvas id="combineBgCanvas"></canvas>
+          <div class="padding-guide" id="combineGuide"></div>
+        </div>
+        <div style="font-size: 11px; color: var(--text-soft);">
+          미리보기 · 클릭하여 선택 · 핸들로 비율 유지 크기 조절(Shift = 자유 변형) · 드래그로 이동
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TAB 3: BANNER ===================== -->
+  <section class="tab-pane" data-pane="banner">
+    <aside class="sidebar">
+      <div class="section">
+        <div class="section-title">오브제 (기본 430 × 430 · X 560 Y 550 · 드래그/핸들로 조절)</div>
+        <div id="bannerObjectDrop" class="dropzone" tabindex="0">
+          <div class="dropzone-icon">⬆</div>
+          <div class="dropzone-title">오브제 업로드</div>
+          <div class="dropzone-sub">클릭 · 드래그 앤 드롭 · 붙여넣기 (Ctrl+V)</div>
+          <input type="file" id="bannerObjectInput" accept="image/*" hidden>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">로고 (세로 54 · Y 98 고정)</div>
+        <div class="field">
+          <label>로고 색상</label>
+          <div class="toggle-group" id="bannerLogoVariant">
+            <button class="active" data-variant="black">검정</button>
+            <button data-variant="white">흰색</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">텍스트 배리에이션 <span class="variation-meta" id="variationCount">1/10</span></div>
+        <div style="font-size:11px; color:var(--text-soft); margin-bottom:10px;">
+          각 변형은 독립된 메인 / 서브 / 심의필을 가집니다 · 활성화된 변형이 캔버스 미리보기에 표시됩니다 · 메인 카피의 [ ]는 포인트 컬러로 표시
+        </div>
+        <div id="variationList"></div>
+        <button class="btn full sm" id="addVariation" style="margin-top: 8px;">+ 변형 추가</button>
+      </div>
+
+      <div class="section">
+        <div class="section-title">스타일</div>
+        <div class="field">
+          <label>텍스트 색상</label>
+          <input type="hidden" id="bannerTextColor" value="#1F252C" data-palette>
+        </div>
+        <div class="field">
+          <label>메인 카피 포인트 컬러</label>
+          <input type="hidden" id="bannerPointColor" value="#FF4C00" data-palette>
+        </div>
+        <div class="field">
+          <label>배경 색상</label>
+          <input type="hidden" id="bannerBgColor" value="#FFFFFF" data-palette>
+        </div>
+        <div class="field">
+          <label>텍스트 정렬</label>
+          <div class="toggle-group" id="bannerAlign">
+            <button class="active" data-align="left">왼쪽</button>
+            <button data-align="center">가운데</button>
+            <button data-align="right">오른쪽</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">디자인 히스토리 <span class="variation-meta" id="historyCount">0</span></div>
+        <button class="btn full sm" id="saveDesignBtn" style="margin-bottom: 10px;">💾 현재 디자인 저장</button>
+        <div id="historyList" class="history-list"></div>
+        <div style="font-size: 11px; color: var(--text-soft); margin-top: 6px;">
+          현재 작업 상태(텍스트 변형, 오브제 위치/크기, 색상, 정렬)를 스냅샷으로 저장 · 이름 클릭으로 변경 · 브라우저에 자동 저장됨
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">내보내기</div>
+        <button class="btn primary full" id="bannerExportMeta" style="margin-bottom: 8px;">현재 변형 PNG 저장</button>
+        <button class="btn primary full" id="bannerExportAll">전체 변형 ZIP 저장</button>
+      </div>
+    </aside>
+
+    <div class="canvas-area">
+      <div id="bannersGrid"></div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===========================================================
+   Visual Factory · core script
+   =========================================================== */
+
+/* ---------- Utilities ---------- */
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+function showToast(msg, ms = 1800) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), ms);
+}
+
+function loadImageFromFile(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) return reject(new Error('No file'));
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => resolve({ img, dataUrl: e.target.result, file });
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function downloadCanvas(canvas, name) {
+  const link = document.createElement('a');
+  link.download = name;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+/* ---------- Color Palette ---------- */
+const COLOR_PALETTE = [
+  ['FFF7C2','FFF36B','FFEB00','FFDD00','FFC700','FFA800','FF8A00'],
+  ['FFCCC2','FFB7A7','FF907A','FF7143','FF4C00','F13A00','D72C09','C52200'],
+  ['CDF4E0','74F1B2','40E291','32D185','00C070','00AD64','00A15E','009552','008048','006B40'],
+  ['D1DBFF','BBCBFF','A6B9FF','8FA7FF','7391FF','5C7AFF','3D5AEB','2944CC'],
+  ['E3F3FF','BBE0FF','80CAFF','49A8FF','008DFF','0075FF'],
+  ['E3DEFF','CCC3FF','B3A7FF','8A76FF','6F58FF'],
+  ['FFBE9E','FFA476','DF8557','BF6C42','A05225','803D17'],
+  ['FFFFFF','E6ECF2','D0DBE6','B0BFCF','97A7B8','7D8D9E','6B7B8C','58697A','3D4B59','2E3B47','1F252C']
+];
+
+
+/* ---------- Default brand logos (auto-registered on init) ---------- */
+const DEFAULT_LOGO_BLACK = "data:image/png;base64,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";
+const DEFAULT_LOGO_WHITE = "data:image/png;base64,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";
+
+let _activePalette = null;
+function _closePalette() {
+  if (_activePalette) {
+    _activePalette.remove();
+    _activePalette = null;
+  }
+}
+document.addEventListener('mousedown', (e) => {
+  if (_activePalette && !_activePalette.contains(e.target) && !e.target.closest('.color-swatch')) {
+    _closePalette();
+  }
+}, true);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') _closePalette();
+});
+
+function _openPalette(anchorBtn, currentValue, onPick) {
+  _closePalette();
+  const overlay = document.createElement('div');
+  overlay.className = 'palette-popover';
+  const cur = (currentValue || '').toUpperCase().replace('#','');
+  COLOR_PALETTE.forEach(column => {
+    const col = document.createElement('div');
+    col.className = 'palette-col';
+    column.forEach(hex => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'palette-dot' + (hex.toUpperCase() === cur ? ' selected' : '');
+      dot.style.background = '#' + hex;
+      dot.title = '#' + hex;
+      dot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        onPick('#' + hex);
+        _closePalette();
+      });
+      col.appendChild(dot);
+    });
+    overlay.appendChild(col);
+  });
+  document.body.appendChild(overlay);
+  _activePalette = overlay;
+
+  // Position
+  const rect = anchorBtn.getBoundingClientRect();
+  const ow = overlay.offsetWidth, oh = overlay.offsetHeight;
+  let left = rect.left;
+  let top = rect.bottom + 6;
+  if (left + ow > window.innerWidth - 12) left = window.innerWidth - ow - 12;
+  if (left < 12) left = 12;
+  if (top + oh > window.innerHeight - 12) top = rect.top - oh - 6;
+  overlay.style.left = left + 'px';
+  overlay.style.top = top + 'px';
+}
+
+function attachColorPalette(input) {
+  if (!input || input.dataset.paletteReady) return;
+  input.dataset.paletteReady = '1';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'color-picker-wrap';
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'color-swatch';
+  btn.innerHTML = `<span class="swatch-color"></span><span class="swatch-text"></span>`;
+
+  function updateBtn() {
+    const v = (input.value || '#FFFFFF').toUpperCase();
+    btn.querySelector('.swatch-color').style.background = v;
+    btn.querySelector('.swatch-text').textContent = v.replace('#','');
+  }
+  updateBtn();
+
+  // Insert wrap before input, then move input inside as hidden
+  input.parentNode.insertBefore(wrap, input);
+  wrap.appendChild(btn);
+  wrap.appendChild(input);
+  input.type = 'hidden';
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    _openPalette(btn, input.value, (color) => {
+      input.value = color;
+      updateBtn();
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  });
+
+  // Update swatch when value changes programmatically
+  input.addEventListener('input', updateBtn);
+}
+
+// Auto-attach palette to all inputs marked with data-palette
+function initColorPalettes() {
+  $$('input[data-palette]').forEach(attachColorPalette);
+}
+
+/* ---------- Tab switching ---------- */
+$$('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.tab;
+    $$('.tab').forEach(b => b.classList.toggle('active', b === btn));
+    $$('.tab-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === target));
+  });
+});
+
+/* ===========================================================
+   FEATURE 1: IMAGE RESIZING
+   =========================================================== */
+const ResizeApp = (() => {
+  const state = {
+    img: null,
+    fileName: '',
+    width: 1080,
+    height: 1080,
+    padding: 30,
+    scale: 1,        // user scale multiplier (1.0 = fit baseline)
+    offsetX: 0,      // pixel offset in canvas-space (0 = centered)
+    offsetY: 0,
+    fitBaseScale: 1, // base scale to fit padding area
+    bgType: 'transparent',
+    bgColor: '#ffffff',
+  };
+
+  const els = {
+    dropzone: $('#resizeDropzone'),
+    fileInput: $('#resizeFileInput'),
+    fileInfo: $('#resizeFileInfo'),
+    fileName: $('#resizeFileName'),
+    clearBtn: $('#resizeClear'),
+    presetSel: $('#resizePreset'),
+    wInput: $('#resizeW'),
+    hInput: $('#resizeH'),
+    scaleSlider: $('#resizeScale'),
+    scaleVal: $('#resizeScaleVal'),
+    paddingSlider: $('#resizePadding'),
+    paddingVal: $('#resizePaddingVal'),
+    centerBtn: $('#resizeCenter'),
+    exportBtn: $('#resizeExport'),
+    exportHint: $('#resizeExportHint'),
+    stage: $('#resizeStage'),
+    canvas: $('#resizeCanvas'),
+    guide: $('#resizeGuide'),
+    stageLabel: $('#resizeStageLabel'),
+    guideLabel: $('#resizeGuideLabel'),
+    bgTypeBtns: $$('#resizeBgType button'),
+    bgColorField: $('#resizeBgColorField'),
+    bgColor: $('#resizeBgColor'),
+  };
+
+  // ----- File handlers
+  function bindUploadTo(zone, input, onFile) {
+    zone.addEventListener('click', () => input.click());
+    zone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+    });
+    input.addEventListener('change', (e) => {
+      const f = e.target.files?.[0];
+      if (f) onFile(f);
+      input.value = '';
+    });
+    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault(); zone.classList.remove('dragover');
+      const f = e.dataTransfer?.files?.[0];
+      if (f) onFile(f);
+    });
+  }
+
+  async function handleFile(file) {
+    if (!file.type.startsWith('image/')) {
+      showToast('이미지 파일만 업로드 가능합니다');
+      return;
+    }
+    try {
+      const { img } = await loadImageFromFile(file);
+      state.img = img;
+      state.fileName = file.name;
+      state.scale = 1;
+      state.offsetX = 0;
+      state.offsetY = 0;
+      els.scaleSlider.value = 100;
+      els.scaleVal.textContent = '100';
+      els.dropzone.classList.add('has-file');
+      els.dropzone.innerHTML = `<div class="dz-thumb" style="background-image: url(${img.src});"></div>`;
+      els.fileInfo.style.display = 'flex';
+      els.fileName.textContent = file.name;
+      computeBaseScale();
+      render();
+      showToast('이미지를 불러왔습니다');
+    } catch (e) {
+      showToast('이미지를 불러올 수 없습니다');
+    }
+  }
+
+  function clearFile() {
+    state.img = null;
+    state.fileName = '';
+    els.dropzone.classList.remove('has-file');
+    els.dropzone.innerHTML = `
+      <div class="dropzone-icon">⬆</div>
+      <div class="dropzone-title">PNG 파일 업로드</div>
+      <div class="dropzone-sub">클릭 · 드래그 앤 드롭 · 붙여넣기 (Ctrl+V)</div>
+    `;
+    els.fileInfo.style.display = 'none';
+    render();
+  }
+
+  // ----- Sizing logic
+  function computeBaseScale() {
+    if (!state.img) return;
+    const innerW = Math.max(1, state.width - state.padding * 2);
+    const innerH = Math.max(1, state.height - state.padding * 2);
+    const sw = innerW / state.img.width;
+    const sh = innerH / state.img.height;
+    state.fitBaseScale = Math.min(sw, sh);
+  }
+
+  function updateStageDims() {
+    // Fit stage preview within max 480x480 keeping aspect ratio
+    const MAX = 480;
+    const ratio = state.width / state.height;
+    let dispW, dispH;
+    if (ratio >= 1) {
+      dispW = MAX;
+      dispH = MAX / ratio;
+    } else {
+      dispH = MAX;
+      dispW = MAX * ratio;
+    }
+    els.stage.style.width = dispW + 'px';
+    els.stage.style.height = dispH + 'px';
+    els.canvas.width = state.width;
+    els.canvas.height = state.height;
+    els.canvas.style.width = dispW + 'px';
+    els.canvas.style.height = dispH + 'px';
+    // Padding guide
+    const padPctX = (state.padding / state.width) * 100;
+    const padPctY = (state.padding / state.height) * 100;
+    els.guide.style.left = padPctX + '%';
+    els.guide.style.top = padPctY + '%';
+    els.guide.style.right = padPctX + '%';
+    els.guide.style.bottom = padPctY + '%';
+    els.stageLabel.textContent = `${state.width} × ${state.height}`;
+    els.guideLabel.textContent = `${state.padding}px`;
+  }
+
+  function render() {
+    updateStageDims();
+    const ctx = els.canvas.getContext('2d');
+    ctx.clearRect(0, 0, els.canvas.width, els.canvas.height);
+    // Background
+    if (state.bgType === 'color') {
+      ctx.fillStyle = state.bgColor;
+      ctx.fillRect(0, 0, els.canvas.width, els.canvas.height);
+    }
+    if (!state.img) return;
+    const finalScale = state.fitBaseScale * state.scale;
+    const drawW = state.img.width * finalScale;
+    const drawH = state.img.height * finalScale;
+    const cx = state.width / 2 + state.offsetX;
+    const cy = state.height / 2 + state.offsetY;
+    const dx = cx - drawW / 2;
+    const dy = cy - drawH / 2;
+    ctx.drawImage(state.img, dx, dy, drawW, drawH);
+  }
+
+  // ----- Event bindings
+  bindUploadTo(els.dropzone, els.fileInput, handleFile);
+  els.clearBtn.addEventListener('click', (e) => { e.stopPropagation(); clearFile(); });
+
+  els.presetSel.addEventListener('change', () => {
+    if (!els.presetSel.value) return;
+    const [w, h] = els.presetSel.value.split(',').map(Number);
+    state.width = w; state.height = h;
+    els.wInput.value = w; els.hInput.value = h;
+    computeBaseScale(); render();
+  });
+  function onSizeInput() {
+    state.width = Math.max(1, parseInt(els.wInput.value) || 1);
+    state.height = Math.max(1, parseInt(els.hInput.value) || 1);
+    computeBaseScale(); render();
+  }
+  els.wInput.addEventListener('input', onSizeInput);
+  els.hInput.addEventListener('input', onSizeInput);
+
+  els.scaleSlider.addEventListener('input', () => {
+    state.scale = parseInt(els.scaleSlider.value) / 100;
+    els.scaleVal.textContent = els.scaleSlider.value;
+    render();
+  });
+  els.paddingSlider.addEventListener('input', () => {
+    state.padding = parseInt(els.paddingSlider.value);
+    els.paddingVal.textContent = state.padding;
+    computeBaseScale(); render();
+  });
+  els.centerBtn.addEventListener('click', () => {
+    state.offsetX = 0; state.offsetY = 0;
+    state.scale = 1; els.scaleSlider.value = 100; els.scaleVal.textContent = '100';
+    render();
+    showToast('중앙으로 정렬했습니다');
+  });
+
+  els.exportBtn.addEventListener('click', () => {
+    if (!state.img) { showToast('이미지를 먼저 업로드해주세요'); return; }
+    // Render to a clean export canvas
+    const exp = document.createElement('canvas');
+    exp.width = state.width; exp.height = state.height;
+    const ectx = exp.getContext('2d');
+    if (state.bgType === 'color') {
+      ectx.fillStyle = state.bgColor;
+      ectx.fillRect(0, 0, exp.width, exp.height);
+    }
+    const finalScale = state.fitBaseScale * state.scale;
+    const drawW = state.img.width * finalScale;
+    const drawH = state.img.height * finalScale;
+    const cx = state.width / 2 + state.offsetX;
+    const cy = state.height / 2 + state.offsetY;
+    ectx.drawImage(state.img, cx - drawW / 2, cy - drawH / 2, drawW, drawH);
+    const baseName = (state.fileName || 'image').replace(/\.[^.]+$/, '');
+    const bgSuffix = state.bgType === 'color' ? `_bg${state.bgColor.replace('#','')}` : '_transparent';
+    downloadCanvas(exp, `${baseName}_${state.width}x${state.height}${bgSuffix}.png`);
+    showToast('PNG로 저장되었습니다');
+  });
+
+  // Background type / color bindings
+  els.bgTypeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      els.bgTypeBtns.forEach(b => b.classList.toggle('active', b === btn));
+      state.bgType = btn.dataset.bg;
+      els.bgColorField.style.display = state.bgType === 'color' ? 'block' : 'none';
+      els.exportHint.textContent = state.bgType === 'color'
+        ? `배경 색상 ${state.bgColor} 으로 추출됩니다`
+        : '배경 없는 투명 PNG로 추출됩니다';
+      els.exportBtn.textContent = state.bgType === 'color' ? 'PNG 저장' : '투명 PNG 저장';
+      render();
+    });
+  });
+  els.bgColor.addEventListener('input', () => {
+    state.bgColor = els.bgColor.value;
+    els.exportHint.textContent = `배경 색상 ${state.bgColor} 으로 추출됩니다`;
+    render();
+  });
+
+  // Paste support (only when this tab is active)
+  document.addEventListener('paste', (e) => {
+    const activePane = $('.tab-pane.active')?.dataset.pane;
+    if (activePane !== 'resize') return;
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) handleFile(file);
+        break;
+      }
+    }
+  });
+
+  // Mouse drag to move image on stage
+  function getStageScale() {
+    return parseFloat(els.stage.style.width) / state.width;
+  }
+  els.stage.style.cursor = 'grab';
+  els.stage.addEventListener('mousedown', (e) => {
+    if (!state.img) return;
+    e.preventDefault();
+    const sc = getStageScale();
+    const startX = e.clientX, startY = e.clientY;
+    const startOffsetX = state.offsetX, startOffsetY = state.offsetY;
+    els.stage.style.cursor = 'grabbing';
+    const onMove = (ev) => {
+      const dx = (ev.clientX - startX) / sc;
+      const dy = (ev.clientY - startY) / sc;
+      state.offsetX = startOffsetX + dx;
+      state.offsetY = startOffsetY + dy;
+      render();
+    };
+    const onUp = () => {
+      els.stage.style.cursor = 'grab';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  // Wheel to zoom on stage
+  els.stage.addEventListener('wheel', (e) => {
+    if (!state.img) return;
+    e.preventDefault();
+    const cur = parseInt(els.scaleSlider.value);
+    const delta = e.deltaY < 0 ? 5 : -5;
+    const next = Math.min(300, Math.max(10, cur + delta));
+    els.scaleSlider.value = next;
+    state.scale = next / 100;
+    els.scaleVal.textContent = next;
+    render();
+  }, { passive: false });
+
+  // initial render
+  computeBaseScale(); render();
+
+  return { state };
+})();
+
+/* ===========================================================
+   FEATURE 2: OBJECT COMBINE
+   =========================================================== */
+const CombineApp = (() => {
+  const state = {
+    width: 1080,
+    height: 1080,
+    padding: 30,
+    bgType: 'transparent',
+    bgColor: '#ffffff',
+    layers: [],   // { id, name, img, dataUrl, x, y, w, h, fileName }
+    activeId: null,
+    nextId: 1,
+  };
+
+  const MAX_LAYERS = 3;
+
+  const els = {
+    presetSel: $('#combinePreset'),
+    wInput: $('#combineW'),
+    hInput: $('#combineH'),
+    paddingSlider: $('#combinePadding'),
+    paddingVal: $('#combinePaddingVal'),
+    bgTypeBtns: $$('#combineBgType button'),
+    bgColorField: $('#combineBgColorField'),
+    bgColor: $('#combineBgColor'),
+    layerList: $('#layerList'),
+    addLayerBtn: $('#addLayer'),
+    layerCount: $('#layerCount'),
+    exportBtn: $('#combineExport'),
+    stage: $('#combineStage'),
+    bgCanvas: $('#combineBgCanvas'),
+    guide: $('#combineGuide'),
+    stageLabel: $('#combineStageLabel'),
+  };
+
+  // initialize 2 layers
+  function init() {
+    addLayer();
+    addLayer();
+    updateStageDims();
+    renderBg();
+  }
+
+  // Apply an image to a specific layer (used by click upload, drop, paste)
+  async function applyImageToLayer(layer, file) {
+    const { img } = await loadImageFromFile(file);
+    layer.img = img;
+    layer.fileName = file.name || 'pasted.png';
+    const maxSide = Math.min(state.width, state.height) * 0.5;
+    if (img.width > img.height) {
+      layer.w = maxSide; layer.h = (img.height / img.width) * maxSide;
+    } else {
+      layer.h = maxSide; layer.w = (img.width / img.height) * maxSide;
+    }
+    layer.x = (state.width - layer.w) / 2;
+    layer.y = (state.height - layer.h) / 2;
+    state.activeId = layer.id;
+    renderLayerList();
+    renderObjects();
+  }
+
+  function addLayer() {
+    if (state.layers.length >= MAX_LAYERS) {
+      showToast(`레이어는 최대 ${MAX_LAYERS}개까지 추가할 수 있습니다`);
+      return;
+    }
+    const id = state.nextId++;
+    const layer = {
+      id,
+      name: `레이어 ${state.layers.length + 1}`,
+      img: null,
+      fileName: '',
+      x: state.width * 0.25 + (state.layers.length * 40),
+      y: state.height * 0.25 + (state.layers.length * 40),
+      w: state.width * 0.4,
+      h: state.height * 0.4,
+    };
+    state.layers.push(layer);
+    state.activeId = id;
+    renderLayerList();
+    renderObjects();
+    updateLayerCount();
+  }
+
+  function removeLayer(id) {
+    state.layers = state.layers.filter(l => l.id !== id);
+    state.layers.forEach((l, i) => l.name = `레이어 ${i + 1}`);
+    if (state.activeId === id) state.activeId = state.layers[0]?.id || null;
+    renderLayerList();
+    renderObjects();
+    updateLayerCount();
+  }
+
+  function updateLayerCount() {
+    els.layerCount.textContent = state.layers.length;
+    els.addLayerBtn.disabled = state.layers.length >= MAX_LAYERS;
+    els.addLayerBtn.style.opacity = state.layers.length >= MAX_LAYERS ? '0.4' : '1';
+    els.addLayerBtn.style.cursor = state.layers.length >= MAX_LAYERS ? 'not-allowed' : 'pointer';
+  }
+
+  function renderLayerList() {
+    els.layerList.innerHTML = '';
+    state.layers.forEach((layer, idx) => {
+      const item = document.createElement('div');
+      item.className = 'layer-item' + (state.activeId === layer.id ? ' active' : '');
+      item.dataset.id = layer.id;
+
+      const header = document.createElement('div');
+      header.className = 'layer-header';
+      header.innerHTML = `
+        <div class="layer-title">${layer.name}</div>
+        <div class="layer-actions">
+          <button class="btn-icon sm" data-act="up" title="앞으로" style="width:24px;height:24px;font-size:11px;">↑</button>
+          <button class="btn-icon sm" data-act="down" title="뒤로" style="width:24px;height:24px;font-size:11px;">↓</button>
+          <button class="btn-icon sm" data-act="del" title="삭제" style="width:24px;height:24px;font-size:11px;">×</button>
+        </div>
+      `;
+
+      const drop = document.createElement('div');
+      const isPasteTarget = state.activeId === layer.id;
+      drop.className = 'layer-mini-drop'
+        + (layer.img ? ' has-file' : '')
+        + (isPasteTarget ? ' paste-target' : '');
+      drop.innerHTML = layer.img
+        ? `<div class="layer-thumb" style="background-image: url(${layer.img.src});"></div>`
+        : `클릭 · 드래그 · 붙여넣기`;
+
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.style.display = 'none';
+
+      // mark this layer as paste target on click — without re-rendering
+      drop.addEventListener('click', () => {
+        if (state.activeId !== layer.id) {
+          state.activeId = layer.id;
+          // Selectively update classes (do NOT rebuild DOM)
+          els.layerList.querySelectorAll('.layer-item').forEach(el => {
+            el.classList.toggle('active', parseInt(el.dataset.id) === layer.id);
+          });
+          els.layerList.querySelectorAll('.layer-mini-drop').forEach(el => {
+            el.classList.remove('paste-target');
+          });
+          drop.classList.add('paste-target');
+          renderObjects();
+        }
+        fileInput.click();
+      });
+      fileInput.addEventListener('change', async (e) => {
+        const f = e.target.files?.[0];
+        if (!f) return;
+        await applyImageToLayer(layer, f);
+        fileInput.value = '';
+      });
+      drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('dragover'); });
+      drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+      drop.addEventListener('drop', async (e) => {
+        e.preventDefault(); drop.classList.remove('dragover');
+        const f = e.dataTransfer?.files?.[0];
+        if (!f || !f.type.startsWith('image/')) return;
+        await applyImageToLayer(layer, f);
+      });
+
+      item.appendChild(header);
+      item.appendChild(drop);
+      item.appendChild(fileInput);
+
+      // numeric controls
+      const controls = document.createElement('div');
+      controls.className = 'layer-controls';
+      controls.innerHTML = `
+        <label>X</label><input type="number" data-prop="x" value="${Math.round(layer.x)}">
+        <label>Y</label><input type="number" data-prop="y" value="${Math.round(layer.y)}">
+        <label>너비</label><input type="number" data-prop="w" value="${Math.round(layer.w)}">
+        <label>높이</label><input type="number" data-prop="h" value="${Math.round(layer.h)}">
+      `;
+      controls.addEventListener('input', (e) => {
+        const prop = e.target.dataset.prop;
+        if (!prop) return;
+        layer[prop] = parseFloat(e.target.value) || 0;
+        renderObjects(true); // skip re-render of inputs
+      });
+      item.appendChild(controls);
+
+      // Center alignment buttons
+      const actionRow = document.createElement('div');
+      actionRow.className = 'layer-action-row';
+      actionRow.innerHTML = `
+        <button class="btn sm" data-center="both" title="가로·세로 가운데">↔↕ 가운데</button>
+        <button class="btn sm" data-center="x" title="가로 가운데">↔ 가로</button>
+        <button class="btn sm" data-center="y" title="세로 가운데">↕ 세로</button>
+      `;
+      actionRow.addEventListener('click', (e) => {
+        const mode = e.target.closest('button')?.dataset.center;
+        if (!mode) return;
+        e.stopPropagation();
+        if (mode === 'x' || mode === 'both') layer.x = (state.width - layer.w) / 2;
+        if (mode === 'y' || mode === 'both') layer.y = (state.height - layer.h) / 2;
+        renderLayerList();
+        renderObjects();
+      });
+      item.appendChild(actionRow);
+
+      // header actions
+      header.addEventListener('click', (e) => {
+        const act = e.target.closest('button')?.dataset.act;
+        if (!act) return;
+        e.stopPropagation();
+        if (act === 'del') removeLayer(layer.id);
+        else if (act === 'up') {
+          const i = state.layers.findIndex(l => l.id === layer.id);
+          if (i < state.layers.length - 1) {
+            [state.layers[i], state.layers[i + 1]] = [state.layers[i + 1], state.layers[i]];
+            state.layers.forEach((l, k) => l.name = `레이어 ${k + 1}`);
+            renderLayerList(); renderObjects();
+          }
+        } else if (act === 'down') {
+          const i = state.layers.findIndex(l => l.id === layer.id);
+          if (i > 0) {
+            [state.layers[i], state.layers[i - 1]] = [state.layers[i - 1], state.layers[i]];
+            state.layers.forEach((l, k) => l.name = `레이어 ${k + 1}`);
+            renderLayerList(); renderObjects();
+          }
+        }
+      });
+
+      item.addEventListener('mousedown', (e) => {
+        if (e.target.closest('button')) return;
+        if (e.target.closest('.layer-mini-drop')) return; // let drop click handler handle activation
+        if (e.target.closest('input')) return;             // let numeric inputs receive focus
+        if (state.activeId === layer.id) return;
+        state.activeId = layer.id;
+        // Selective update — do NOT rebuild DOM
+        els.layerList.querySelectorAll('.layer-item').forEach(el => {
+          el.classList.toggle('active', parseInt(el.dataset.id) === layer.id);
+        });
+        els.layerList.querySelectorAll('.layer-mini-drop').forEach(el => {
+          el.classList.remove('paste-target');
+        });
+        const myDrop = item.querySelector('.layer-mini-drop');
+        if (myDrop) myDrop.classList.add('paste-target');
+        renderObjects();
+      });
+
+      els.layerList.appendChild(item);
+    });
+  }
+
+  function getStageScale() {
+    return parseFloat(els.stage.style.width) / state.width;
+  }
+
+  function updateStageDims() {
+    const MAX = 480;
+    const ratio = state.width / state.height;
+    let dispW, dispH;
+    if (ratio >= 1) { dispW = MAX; dispH = MAX / ratio; }
+    else { dispH = MAX; dispW = MAX * ratio; }
+    els.stage.style.width = dispW + 'px';
+    els.stage.style.height = dispH + 'px';
+    els.bgCanvas.width = state.width;
+    els.bgCanvas.height = state.height;
+    els.bgCanvas.style.width = dispW + 'px';
+    els.bgCanvas.style.height = dispH + 'px';
+    const padPctX = (state.padding / state.width) * 100;
+    const padPctY = (state.padding / state.height) * 100;
+    els.guide.style.left = padPctX + '%';
+    els.guide.style.top = padPctY + '%';
+    els.guide.style.right = padPctX + '%';
+    els.guide.style.bottom = padPctY + '%';
+    els.stageLabel.textContent = `${state.width} × ${state.height}`;
+  }
+
+  function renderBg() {
+    const ctx = els.bgCanvas.getContext('2d');
+    ctx.clearRect(0, 0, els.bgCanvas.width, els.bgCanvas.height);
+    if (state.bgType === 'color') {
+      ctx.fillStyle = state.bgColor;
+      ctx.fillRect(0, 0, els.bgCanvas.width, els.bgCanvas.height);
+    }
+  }
+
+  function renderObjects(skipNumberInputs = false) {
+    // Remove existing object divs
+    $$('.stage-object', els.stage).forEach(el => el.remove());
+    const scale = getStageScale();
+
+    state.layers.forEach((layer) => {
+      const obj = document.createElement('div');
+      obj.className = 'stage-object' + (state.activeId === layer.id ? ' selected' : '');
+      obj.dataset.id = layer.id;
+      obj.style.left = (layer.x * scale) + 'px';
+      obj.style.top = (layer.y * scale) + 'px';
+      obj.style.width = (layer.w * scale) + 'px';
+      obj.style.height = (layer.h * scale) + 'px';
+
+      if (layer.img) {
+        const img = document.createElement('img');
+        img.src = layer.img.src;
+        obj.appendChild(img);
+      } else {
+        obj.style.background = 'rgba(0,0,0,0.04)';
+        obj.style.border = '1px dashed rgba(0,0,0,0.2)';
+        const ph = document.createElement('div');
+        ph.style.cssText = 'width:100%;height:100%;display:grid;place-items:center;font-size:11px;color:#a3a3a3;';
+        ph.textContent = layer.name;
+        obj.appendChild(ph);
+      }
+
+      const moveArea = document.createElement('div');
+      moveArea.className = 'move-area';
+      obj.appendChild(moveArea);
+
+      // resize handles (only if active)
+      if (state.activeId === layer.id) {
+        ['tl', 'tr', 'bl', 'br'].forEach(corner => {
+          const h = document.createElement('div');
+          h.className = `resize-handle ${corner}`;
+          h.dataset.corner = corner;
+          obj.appendChild(h);
+        });
+      }
+
+      // mouse events
+      obj.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        state.activeId = layer.id;
+        renderLayerList();
+        renderObjects();
+
+        const handleEl = e.target.classList.contains('resize-handle') ? e.target : null;
+        const startX = e.clientX, startY = e.clientY;
+        const start = { x: layer.x, y: layer.y, w: layer.w, h: layer.h };
+        const sc = getStageScale();
+
+        const onMove = (ev) => {
+          const dx = (ev.clientX - startX) / sc;
+          const dy = (ev.clientY - startY) / sc;
+          if (handleEl) {
+            const corner = handleEl.dataset.corner;
+            const ratio = start.w / start.h;
+            const freeResize = ev.shiftKey;
+
+            // Outward direction per corner
+            const outX = (corner === 'br' || corner === 'tr') ? 1 : -1;
+            const outY = (corner === 'br' || corner === 'bl') ? 1 : -1;
+
+            let newW, newH;
+            if (freeResize) {
+              // Free resize (Shift held)
+              newW = Math.max(20, start.w + outX * dx);
+              newH = Math.max(20, start.h + outY * dy);
+            } else {
+              // Aspect-ratio locked: take the larger relative drag and scale both axes
+              const dxRel = (outX * dx) / start.w;
+              const dyRel = (outY * dy) / start.h;
+              const driver = Math.abs(dxRel) > Math.abs(dyRel) ? dxRel : dyRel;
+              const scale = Math.max(0.05, 1 + driver);
+              newW = Math.max(20, start.w * scale);
+              newH = newW / ratio;
+              if (newH < 20) { newH = 20; newW = newH * ratio; }
+            }
+
+            layer.w = newW;
+            layer.h = newH;
+            // Anchor opposite corner
+            if (corner === 'tl') {
+              layer.x = start.x + (start.w - layer.w);
+              layer.y = start.y + (start.h - layer.h);
+            } else if (corner === 'tr') {
+              layer.y = start.y + (start.h - layer.h);
+            } else if (corner === 'bl') {
+              layer.x = start.x + (start.w - layer.w);
+            }
+          } else {
+            layer.x = start.x + dx;
+            layer.y = start.y + dy;
+          }
+          renderObjects(true);
+        };
+        const onUp = () => {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          renderLayerList(); // sync numeric inputs
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+
+      els.stage.appendChild(obj);
+    });
+  }
+
+  // ----- Event bindings
+  els.presetSel.addEventListener('change', () => {
+    if (!els.presetSel.value) return;
+    const [w, h] = els.presetSel.value.split(',').map(Number);
+    state.width = w; state.height = h;
+    els.wInput.value = w; els.hInput.value = h;
+    updateStageDims(); renderBg(); renderObjects();
+  });
+  function onSize() {
+    state.width = Math.max(1, parseInt(els.wInput.value) || 1);
+    state.height = Math.max(1, parseInt(els.hInput.value) || 1);
+    updateStageDims(); renderBg(); renderObjects();
+  }
+  els.wInput.addEventListener('input', onSize);
+  els.hInput.addEventListener('input', onSize);
+  els.paddingSlider.addEventListener('input', () => {
+    state.padding = parseInt(els.paddingSlider.value);
+    els.paddingVal.textContent = state.padding;
+    updateStageDims();
+  });
+
+  els.bgTypeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      els.bgTypeBtns.forEach(b => b.classList.toggle('active', b === btn));
+      state.bgType = btn.dataset.bg;
+      els.bgColorField.style.display = state.bgType === 'color' ? 'block' : 'none';
+      renderBg();
+    });
+  });
+  els.bgColor.addEventListener('input', () => {
+    state.bgColor = els.bgColor.value;
+    renderBg();
+  });
+
+  els.addLayerBtn.addEventListener('click', addLayer);
+
+  // deselect when clicking stage background
+  els.stage.addEventListener('mousedown', (e) => {
+    if (e.target === els.stage || e.target === els.bgCanvas || e.target === els.guide) {
+      state.activeId = null;
+      renderLayerList();
+      renderObjects();
+    }
+  });
+
+  els.exportBtn.addEventListener('click', () => {
+    const exp = document.createElement('canvas');
+    exp.width = state.width; exp.height = state.height;
+    const ctx = exp.getContext('2d');
+    if (state.bgType === 'color') {
+      ctx.fillStyle = state.bgColor;
+      ctx.fillRect(0, 0, exp.width, exp.height);
+    }
+    state.layers.forEach(layer => {
+      if (layer.img) {
+        ctx.drawImage(layer.img, layer.x, layer.y, layer.w, layer.h);
+      }
+    });
+    downloadCanvas(exp, `combined_${state.width}x${state.height}.png`);
+    showToast('PNG로 저장되었습니다');
+  });
+
+  // Paste support — pastes into active layer (first empty if none active)
+  document.addEventListener('paste', async (e) => {
+    const activePane = $('.tab-pane.active')?.dataset.pane;
+    if (activePane !== 'combine') return;
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (!file) return;
+        let target = state.layers.find(l => l.id === state.activeId);
+        if (!target) target = state.layers.find(l => !l.img);
+        if (!target) target = state.layers[0];
+        if (!target) return;
+        await applyImageToLayer(target, file);
+        showToast(`${target.name}에 붙여넣기 완료`);
+        break;
+      }
+    }
+  });
+
+  init();
+
+  return { state };
+})();
+
+/* ===========================================================
+   FEATURE 3: BANNER (Meta + GDN)
+   =========================================================== */
+const BannerApp = (() => {
+  // ----- FIXED LAYOUT CONSTANTS (Meta 1080×1080 design guideline) -----
+  const PADDING = 80;
+  const OBJ_DEFAULT_X = 560, OBJ_DEFAULT_Y = 550, OBJ_DEFAULT_W = 430, OBJ_DEFAULT_H = 430;
+  const LOGO_Y = 98, LOGO_H = 54;
+
+  const LOGO_TO_HEAD_GAP = 48;
+  const HEAD_TO_SUB_GAP = 23;
+
+  const HEAD_SIZE_DEFAULT = 80;       // pt
+  const HEAD_SIZE_MIN = 40;
+  const HEAD_SIZE_MAX = 140;
+  const HEAD_LH = 1.4;
+  const HEAD_MAX_LINES = 2;
+  const HEAD_MAX_PER_LINE = 30;
+
+  const SUB_SIZE_DEFAULT = 58;        // pt
+  const SUB_SIZE_MIN = 24;
+  const SUB_SIZE_MAX = 100;
+  const SUB_LH = 1.4;
+  const SUB_MAX_LINES = 2;
+  const SUB_MAX_PER_LINE = 40;
+
+  const DISCLAIMER_Y = 1010;
+  const DISCLAIMER_SIZE = 26;
+
+  const state = {
+    objectImage: null,
+    objectX: OBJ_DEFAULT_X,
+    objectY: OBJ_DEFAULT_Y,
+    objectW: OBJ_DEFAULT_W,
+    objectH: OBJ_DEFAULT_H,
+    objectSelected: false,
+    logoBlack: null,
+    logoWhite: null,
+    logoVariant: 'black',
+    head: '메인타이틀 영역 [최대 30자]\n2줄까지 기입할수있어요',
+    headSize: HEAD_SIZE_DEFAULT,
+    sub: '서브 카피 텍스트 영역 최대 40자까지\n두 줄까지 입력할 수 있어요',
+    subSize: SUB_SIZE_DEFAULT,
+    subEnabled: true,
+    swapText: false,
+    disclaimer: '손해보험협회 심의필 제 000000호(2000.00.00~2000.00.00)',
+    // ----- Variations: each holds text + size state -----
+    variations: [{
+      head: '메인타이틀 영역 [최대 30자]\n2줄까지 기입할수있어요',
+      headSize: HEAD_SIZE_DEFAULT,
+      sub: '서브 카피 텍스트 영역 최대 40자까지\n두 줄까지 입력할 수 있어요',
+      subSize: SUB_SIZE_DEFAULT,
+      subEnabled: true,
+      swapText: false,
+      disclaimer: '손해보험협회 심의필 제 000000호(2000.00.00~2000.00.00)',
+    }],
+    activeVariation: 0,
+    textColor: '#1F252C',
+    pointColor: '#FF4C00',
+    bgColor: '#FFFFFF',
+    align: 'left',
+  };
+
+  const els = {
+    bannersGrid: $('#bannersGrid'),
+    objectDrop: $('#bannerObjectDrop'),
+    objectInput: $('#bannerObjectInput'),
+    logoVariantBtns: $$('#bannerLogoVariant button'),
+    textColor: $('#bannerTextColor'),
+    pointColor: $('#bannerPointColor'),
+    bgColor: $('#bannerBgColor'),
+    alignBtns: $$('#bannerAlign button'),
+    exportMeta: $('#bannerExportMeta'),
+    exportAll: $('#bannerExportAll'),
+    variationList: $('#variationList'),
+    variationCount: $('#variationCount'),
+    addVariationBtn: $('#addVariation'),
+    saveDesignBtn: $('#saveDesignBtn'),
+    historyList: $('#historyList'),
+    historyCount: $('#historyCount'),
+  };
+
+  // Paste target tracking — only the object zone is user-uploadable now
+  let pasteTarget = 'object';
+  function setPasteTarget(t) {
+    pasteTarget = t;
+    els.objectDrop.classList.toggle('paste-target', t === 'object');
+  }
+
+  function bindUploadTo(zone, input, onFile, targetKey) {
+    zone.addEventListener('click', () => {
+      setPasteTarget(targetKey);
+      input.click();
+    });
+    zone.addEventListener('focus', () => setPasteTarget(targetKey));
+    input.addEventListener('change', (e) => {
+      const f = e.target.files?.[0];
+      if (f) onFile(f);
+      input.value = '';
+    });
+    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault(); zone.classList.remove('dragover');
+      setPasteTarget(targetKey);
+      const f = e.dataTransfer?.files?.[0];
+      if (f) onFile(f);
+    });
+  }
+
+  // Contain-fit (object stays within fixed box, preserving aspect ratio)
+  function drawContain(ctx, img, boxX, boxY, boxW, boxH) {
+    const iw = img.width, ih = img.height;
+    const ratio = Math.min(boxW / iw, boxH / ih);
+    const dw = iw * ratio, dh = ih * ratio;
+    const dx = boxX + (boxW - dw) / 2;
+    const dy = boxY + (boxH - dh) / 2;
+    ctx.drawImage(img, dx, dy, dw, dh);
+  }
+
+  function fitText(ctx, text, maxWidth, fontFamily, weight, baseSize, minSize = 24) {
+    let size = baseSize;
+    while (size > minSize) {
+      ctx.font = `${weight} ${size}px ${fontFamily}`;
+      if (ctx.measureText(text).width <= maxWidth) break;
+      size -= 2;
+    }
+    return size;
+  }
+
+  function getActiveLogo() {
+    const primary = state.logoVariant === 'white' ? state.logoWhite : state.logoBlack;
+    if (primary) return primary;
+    // Fallback to whichever is uploaded
+    return state.logoBlack || state.logoWhite || null;
+  }
+
+  // Render multi-line text with fixed line-height
+  function drawMultiline(ctx, text, x, topY, fontSize, lineHeightRatio, maxLines) {
+    const lh = fontSize * lineHeightRatio;
+    const lines = (text || '').split('\n').slice(0, maxLines);
+    lines.forEach((line, i) => {
+      ctx.fillText(line, x, topY + i * lh);
+    });
+  }
+
+  // Parse a line into segments based on [ ... ] markers
+  function parseColorSegments(line) {
+    const segs = [];
+    const re = /\[([^\]]*)\]|([^\[]+)/g;
+    let m;
+    while ((m = re.exec(line)) !== null) {
+      if (m[1] !== undefined) segs.push({ text: m[1], point: true });
+      else if (m[2] !== undefined) segs.push({ text: m[2], point: false });
+    }
+    return segs;
+  }
+
+  // Draw a single line that may contain [point] segments — handles alignment
+  function drawColoredLine(ctx, line, x, y, normalColor, pointColor) {
+    const segs = parseColorSegments(line);
+    if (segs.length === 0) return;
+    const align = ctx.textAlign;
+    let totalW = 0;
+    segs.forEach(s => { totalW += ctx.measureText(s.text).width; });
+    let startX;
+    if (align === 'center') startX = x - totalW / 2;
+    else if (align === 'right') startX = x - totalW;
+    else startX = x;
+    ctx.textAlign = 'left';
+    let cursor = startX;
+    segs.forEach(s => {
+      ctx.fillStyle = s.point ? pointColor : normalColor;
+      ctx.fillText(s.text, cursor, y);
+      cursor += ctx.measureText(s.text).width;
+    });
+    ctx.textAlign = align;
+  }
+
+  // Multi-line + colored
+  function drawMultilineColored(ctx, text, x, topY, fontSize, lineHeightRatio, maxLines, normalColor, pointColor) {
+    const lh = fontSize * lineHeightRatio;
+    const lines = (text || '').split('\n').slice(0, maxLines);
+    lines.forEach((line, i) => {
+      drawColoredLine(ctx, line, x, topY + i * lh, normalColor, pointColor);
+    });
+  }
+
+  function countLines(text, maxLines, maxCharsPerLine) {
+    const lines = (text || '').split('\n').slice(0, maxLines).map(l => l.slice(0, maxCharsPerLine));
+    // At least 1 line if text has content
+    return Math.max(1, lines.length);
+  }
+
+  function drawBanner(canvas) {
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Background fill
+    ctx.fillStyle = state.bgColor;
+    ctx.fillRect(0, 0, W, H);
+
+    // ---- Object layer (draggable/resizable) ----
+    if (state.objectImage) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, W, H);
+      ctx.clip();
+      drawContain(ctx, state.objectImage, state.objectX, state.objectY, state.objectW, state.objectH);
+      ctx.restore();
+    }
+
+    // ---- Text X anchor ----
+    let textX;
+    if (state.align === 'center') { ctx.textAlign = 'center'; textX = W / 2; }
+    else if (state.align === 'right') { ctx.textAlign = 'right'; textX = W - PADDING; }
+    else { ctx.textAlign = 'left'; textX = PADDING; }
+    ctx.textBaseline = 'top';
+
+    const fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Noto Sans KR", sans-serif';
+
+    // ---- Logo (FIXED: y=98, h=54) ----
+    const logoImg = getActiveLogo();
+    let logoBottom = LOGO_Y + LOGO_H; // default even if no logo
+    if (logoImg) {
+      const logoH = LOGO_H;
+      const logoW = logoH * (logoImg.width / logoImg.height);
+      let logoX;
+      if (state.align === 'center') logoX = (W - logoW) / 2;
+      else if (state.align === 'right') logoX = W - PADDING - logoW;
+      else logoX = PADDING;
+      ctx.drawImage(logoImg, logoX, LOGO_Y, logoW, logoH);
+      logoBottom = LOGO_Y + logoH;
+    }
+
+    // ---- Main/Sub copy with optional swap order ----
+    const headSize = state.headSize ?? HEAD_SIZE_DEFAULT;
+    const subSize = state.subSize ?? SUB_SIZE_DEFAULT;
+
+    const headLines = countLines(state.head, HEAD_MAX_LINES, HEAD_MAX_PER_LINE);
+    const subPlain = (state.sub || '').replace(/[\[\]]/g, '');
+    const subLines = countLines(subPlain, SUB_MAX_LINES, SUB_MAX_PER_LINE);
+
+    const headBlock = {
+      height: headLines * headSize * HEAD_LH,
+      render: (y) => {
+        ctx.fillStyle = state.textColor;
+        ctx.font = `700 ${headSize}px ${fontFamily}`;
+        drawMultilineColored(ctx, state.head, textX, y, headSize, HEAD_LH, HEAD_MAX_LINES, state.textColor, state.pointColor);
+      },
+    };
+    const subBlock = {
+      height: subLines * subSize * SUB_LH,
+      render: (y) => {
+        ctx.fillStyle = state.textColor;
+        ctx.font = `500 ${subSize}px ${fontFamily}`;
+        ctx.globalAlpha = 0.75;
+        drawMultiline(ctx, subPlain, textX, y, subSize, SUB_LH, SUB_MAX_LINES);
+        ctx.globalAlpha = 1;
+      },
+    };
+
+    // Build block list per swap flag + sub enabled
+    const blocks = [];
+    if (state.swapText && state.subEnabled) {
+      blocks.push(subBlock, headBlock);
+    } else {
+      blocks.push(headBlock);
+      if (state.subEnabled) blocks.push(subBlock);
+    }
+
+    // Render with HEAD_TO_SUB_GAP between consecutive blocks
+    let cursorY = logoBottom + LOGO_TO_HEAD_GAP;
+    blocks.forEach((b, bi) => {
+      if (bi > 0) cursorY += HEAD_TO_SUB_GAP;
+      b.render(cursorY);
+      cursorY += b.height;
+    });
+
+    // ---- Disclaimer (FIXED: y=1010, 26pt) ----
+    if (state.disclaimer && state.disclaimer.trim()) {
+      ctx.fillStyle = state.textColor;
+      ctx.globalAlpha = 0.65;
+      ctx.font = `400 ${DISCLAIMER_SIZE}px ${fontFamily}`;
+      ctx.textBaseline = 'top';
+      if (state.align === 'center') { ctx.textAlign = 'center'; ctx.fillText(state.disclaimer, W / 2, DISCLAIMER_Y); }
+      else if (state.align === 'right') { ctx.textAlign = 'right'; ctx.fillText(state.disclaimer, W - PADDING, DISCLAIMER_Y); }
+      else { ctx.textAlign = 'left'; ctx.fillText(state.disclaimer, PADDING, DISCLAIMER_Y); }
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // Build the grid of canvases (one per variation). Called when variations.length changes.
+  function renderBannerGrid() {
+    els.bannersGrid.innerHTML = '';
+    // 3-column max; for 1-2 variations, use larger cells via data-count attr
+    const n = state.variations.length;
+    els.bannersGrid.dataset.count = n <= 2 ? String(n) : '3';
+    state.variations.forEach((v, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'variation-stage' + (i === state.activeVariation ? ' active' : '');
+      wrap.dataset.idx = i;
+      wrap.innerHTML = `
+        <div class="stage-label"></div>
+        <div class="stage stage-interactive" data-idx="${i}">
+          <canvas data-idx="${i}" width="1080" height="1080"></canvas>
+        </div>
+      `;
+      const stage = wrap.querySelector('.stage');
+      stage.addEventListener('mousedown', (e) => {
+        const isStageOrCanvas = e.target === stage || e.target.tagName === 'CANVAS';
+        if (!isStageOrCanvas) return;
+        if (i !== state.activeVariation) {
+          // Activate this variation
+          state.activeVariation = i;
+          state.objectSelected = false;
+          applyVariationToState(i);
+          renderVariations();
+          updateActiveStageStyles();
+          renderAll();
+        } else if (state.objectSelected) {
+          state.objectSelected = false;
+          renderAll();
+        }
+      });
+      els.bannersGrid.appendChild(wrap);
+    });
+    updateActiveStageStyles();
+  }
+
+  function updateActiveStageStyles() {
+    $$('.variation-stage', els.bannersGrid).forEach((wrap, i) => {
+      wrap.classList.toggle('active', i === state.activeVariation);
+      const label = wrap.querySelector('.stage-label');
+      label.textContent = `META · 변형 ${i + 1}${i === state.activeVariation ? ' · 활성 (오브제 조절 가능)' : ''}`;
+    });
+  }
+
+  // Render a specific variation onto a specific canvas (preserving active state)
+  function drawBannerForVariation(canvas, idx) {
+    applyVariationToState(idx);
+    drawBanner(canvas);
+    if (idx !== state.activeVariation) {
+      applyVariationToState(state.activeVariation);
+    }
+  }
+
+  // Render every variation canvas
+  function renderAllCanvases() {
+    state.variations.forEach((_, i) => {
+      const canvas = els.bannersGrid.querySelector(`canvas[data-idx="${i}"]`);
+      if (canvas) drawBannerForVariation(canvas, i);
+    });
+  }
+
+  function renderAll() {
+    renderAllCanvases();
+    renderObjectOverlay();
+  }
+
+  // ---- Object interaction overlay (active variation only) ----
+  function getActiveStageEl() {
+    return els.bannersGrid.querySelector(`.stage[data-idx="${state.activeVariation}"]`);
+  }
+
+  function renderObjectOverlay() {
+    // Remove existing overlays
+    $$('.stage-object', els.bannersGrid).forEach(el => el.remove());
+    if (!state.objectImage) return;
+    const activeStage = getActiveStageEl();
+    if (!activeStage) return;
+
+    const scale = activeStage.offsetWidth / 1080;
+    const obj = document.createElement('div');
+    obj.className = 'stage-object' + (state.objectSelected ? ' selected' : '');
+    obj.style.left = (state.objectX * scale) + 'px';
+    obj.style.top = (state.objectY * scale) + 'px';
+    obj.style.width = (state.objectW * scale) + 'px';
+    obj.style.height = (state.objectH * scale) + 'px';
+    obj.style.cursor = 'move';
+
+    const moveArea = document.createElement('div');
+    moveArea.className = 'move-area';
+    obj.appendChild(moveArea);
+
+    if (state.objectSelected) {
+      ['tl', 'tr', 'bl', 'br'].forEach(corner => {
+        const h = document.createElement('div');
+        h.className = `resize-handle ${corner}`;
+        h.dataset.corner = corner;
+        obj.appendChild(h);
+      });
+    }
+
+    obj.addEventListener('mousedown', (e) => {
+      e.stopPropagation();
+      state.objectSelected = true;
+      renderAll();
+
+      const handleEl = e.target.classList.contains('resize-handle') ? e.target : null;
+      const startX = e.clientX, startY = e.clientY;
+      const start = {
+        x: state.objectX, y: state.objectY,
+        w: state.objectW, h: state.objectH,
+      };
+      const sc = activeStage.offsetWidth / 1080;
+
+      const onMove = (ev) => {
+        const dx = (ev.clientX - startX) / sc;
+        const dy = (ev.clientY - startY) / sc;
+        if (handleEl) {
+          const corner = handleEl.dataset.corner;
+          const ratio = start.w / start.h;
+          const free = ev.shiftKey;
+          const outX = (corner === 'br' || corner === 'tr') ? 1 : -1;
+          const outY = (corner === 'br' || corner === 'bl') ? 1 : -1;
+          let newW, newH;
+          if (free) {
+            newW = Math.max(20, start.w + outX * dx);
+            newH = Math.max(20, start.h + outY * dy);
+          } else {
+            const dxRel = (outX * dx) / start.w;
+            const dyRel = (outY * dy) / start.h;
+            const driver = Math.abs(dxRel) > Math.abs(dyRel) ? dxRel : dyRel;
+            const sf = Math.max(0.05, 1 + driver);
+            newW = Math.max(20, start.w * sf);
+            newH = newW / ratio;
+            if (newH < 20) { newH = 20; newW = newH * ratio; }
+          }
+          state.objectW = newW;
+          state.objectH = newH;
+          if (corner === 'tl') {
+            state.objectX = start.x + (start.w - state.objectW);
+            state.objectY = start.y + (start.h - state.objectH);
+          } else if (corner === 'tr') {
+            state.objectY = start.y + (start.h - state.objectH);
+          } else if (corner === 'bl') {
+            state.objectX = start.x + (start.w - state.objectW);
+          }
+        } else {
+          state.objectX = start.x + dx;
+          state.objectY = start.y + dy;
+        }
+        renderAll();
+      };
+      const onUp = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+
+    activeStage.appendChild(obj);
+  }
+
+  // Limit text by max lines and chars-per-line
+  function limitMultiline(text, maxLines, maxCharsPerLine) {
+    return (text || '')
+      .split('\n')
+      .slice(0, maxLines)
+      .map(l => l.slice(0, maxCharsPerLine))
+      .join('\n');
+  }
+
+  // ----- Bindings
+  // Generic helper that wires a dropzone to a state slot (object / logoBlack / logoWhite)
+  function setupDropzone({ zone, input, targetKey, stateKey, thumbStyle, defaultInner, variantBgForPreview }) {
+    function renderThumb(img, file) {
+      zone.classList.add('has-file');
+      const bg = variantBgForPreview || 'transparent';
+      zone.innerHTML = `<div style="background:${bg}; padding:4px; border-radius:4px;">
+          <div class="dz-thumb" style="background-image: url(${img.src}); ${thumbStyle}"></div>
+        </div>
+        <div style="font-size: 11px; color: var(--text-soft); margin-top: 6px; display:flex; justify-content:space-between;">
+          <span>${file.name || 'pasted.png'}</span>
+          <button class="file-clear clear-btn" type="button">제거</button>
+        </div>`;
+      zone.querySelector('.clear-btn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state[stateKey] = null;
+        zone.classList.remove('has-file');
+        zone.innerHTML = defaultInner;
+        renderAll();
+      });
+    }
+    bindUploadTo(zone, input, async (file) => {
+      const { img } = await loadImageFromFile(file);
+      state[stateKey] = img;
+      renderThumb(img, file);
+      renderAll();
+    }, targetKey);
+    return renderThumb;
+  }
+
+  const objectDefaultInner = `
+    <div class="dropzone-icon">⬆</div>
+    <div class="dropzone-title">오브제 업로드</div>
+    <div class="dropzone-sub">클릭 · 드래그 앤 드롭 · 붙여넣기 (Ctrl+V)</div>
+  `;
+
+  const renderObjectThumb = setupDropzone({
+    zone: els.objectDrop, input: els.objectInput,
+    targetKey: 'object', stateKey: 'objectImage',
+    thumbStyle: 'height: 80px; background-size: contain; background-repeat: no-repeat; background-position: center;',
+    defaultInner: objectDefaultInner,
+  });
+
+  // Logo variant toggle (logos themselves are auto-loaded, hidden from UI)
+  els.logoVariantBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      els.logoVariantBtns.forEach(b => b.classList.toggle('active', b === btn));
+      state.logoVariant = btn.dataset.variant;
+      renderAll();
+    });
+  });
+
+  // ---- Variation card manager ----
+  const MAX_VARIATIONS = 10;
+
+  function escapeHtml(s) {
+    return (s || '').replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    })[c]);
+  }
+
+  function renderVariations() {
+    els.variationList.innerHTML = '';
+    state.variations.forEach((v, i) => {
+      const card = document.createElement('div');
+      card.className = 'variation-card' + (i === state.activeVariation ? ' active' : '');
+      const isActive = i === state.activeVariation;
+      card.innerHTML = `
+        <div class="vcard-header">
+          <div>
+            <span class="vcard-title">변형 ${i + 1}</span>
+            <span class="vcard-badge">${isActive ? '· 미리보기' : ''}</span>
+          </div>
+          <div class="vcard-actions">
+            <button type="button" class="vcard-btn activate ${isActive ? 'is-active' : ''}" data-act="activate">${isActive ? '활성' : '활성화'}</button>
+            <button type="button" class="vcard-btn delete" data-act="delete" title="삭제">×</button>
+          </div>
+        </div>
+        <div class="vcard-field">
+          <div class="label-row">
+            <label style="margin-bottom:0;">메인 카피 <span style="color:var(--text-soft);font-weight:400;">· 30자 × 2줄 · [ ]는 포인트</span></label>
+            <div class="size-slider">
+              <input type="range" data-size="headSize" min="${HEAD_SIZE_MIN}" max="${HEAD_SIZE_MAX}" value="${v.headSize ?? HEAD_SIZE_DEFAULT}">
+              <span class="size-val" data-size-val="headSize">${v.headSize ?? HEAD_SIZE_DEFAULT}</span>pt
+            </div>
+          </div>
+          <textarea data-prop="head" rows="2">${escapeHtml(v.head)}</textarea>
+        </div>
+        <div class="vcard-swap-row">
+          <button type="button" class="vcard-swap-btn ${v.swapText ? 'swapped' : ''}" data-act="swap-order" title="메인 카피와 서브 카피 순서 바꾸기">
+            ${v.swapText ? '↑↓ 서브가 위 (다시 누르면 원위치)' : '↑↓ 순서 바꾸기'}
+          </button>
+        </div>
+        <div class="vcard-field">
+          <div class="label-row">
+            <label style="margin-bottom:0;">서브 카피 <span style="color:var(--text-soft);font-weight:400;">· 40자 × 2줄</span></label>
+            <div class="toggle-group" data-toggle="subEnabled">
+              <button type="button" data-on="true" class="${v.subEnabled ? 'active' : ''}">사용</button>
+              <button type="button" data-on="false" class="${v.subEnabled ? '' : 'active'}">숨김</button>
+            </div>
+          </div>
+          <div class="size-slider" style="margin-bottom: 4px;">
+            <input type="range" data-size="subSize" min="${SUB_SIZE_MIN}" max="${SUB_SIZE_MAX}" value="${v.subSize ?? SUB_SIZE_DEFAULT}" ${v.subEnabled ? '' : 'disabled'}>
+            <span class="size-val" data-size-val="subSize">${v.subSize ?? SUB_SIZE_DEFAULT}</span>pt
+          </div>
+          <textarea data-prop="sub" rows="2" ${v.subEnabled ? '' : 'disabled'}>${escapeHtml(v.sub)}</textarea>
+        </div>
+        <div class="vcard-field">
+          <label>심의필 <span style="color:var(--text-soft);font-weight:400;">· 26pt · Y 1010</span></label>
+          <input type="text" data-prop="disclaimer" value="${escapeHtml(v.disclaimer ?? '')}">
+        </div>
+      `;
+
+      // Wire input handlers
+      card.querySelectorAll('[data-prop]').forEach(input => {
+        input.addEventListener('input', () => {
+          const prop = input.dataset.prop;
+          let val = input.value;
+          if (prop === 'head') val = limitMultiline(val, HEAD_MAX_LINES, HEAD_MAX_PER_LINE);
+          if (prop === 'sub') val = limitMultiline(val, SUB_MAX_LINES, SUB_MAX_PER_LINE);
+          if (val !== input.value) input.value = val;
+          v[prop] = val;
+          if (i === state.activeVariation) {
+            state[prop] = val;
+          }
+          // Redraw only this variation's canvas
+          const cv = els.bannersGrid.querySelector(`canvas[data-idx="${i}"]`);
+          if (cv) drawBannerForVariation(cv, i);
+          // Object overlay only needs refresh if active changed
+          if (i === state.activeVariation) renderObjectOverlay();
+        });
+      });
+
+      // Font size slider handlers
+      card.querySelectorAll('[data-size]').forEach(slider => {
+        slider.addEventListener('input', () => {
+          const prop = slider.dataset.size;
+          const val = parseInt(slider.value);
+          v[prop] = val;
+          // Update display
+          const display = card.querySelector(`[data-size-val="${prop}"]`);
+          if (display) display.textContent = val;
+          if (i === state.activeVariation) {
+            state[prop] = val;
+          }
+          const cv = els.bannersGrid.querySelector(`canvas[data-idx="${i}"]`);
+          if (cv) drawBannerForVariation(cv, i);
+          if (i === state.activeVariation) renderObjectOverlay();
+        });
+      });
+
+      // Toggle handlers (subEnabled only now)
+      card.querySelectorAll('[data-toggle]').forEach(group => {
+        const prop = group.dataset.toggle;
+        group.querySelectorAll('button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const on = btn.dataset.on === 'true';
+            v[prop] = on;
+            group.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.on === String(on)));
+            // Sync the related input's disabled state
+            const targetInput = card.querySelector(`[data-prop="sub"]`);
+            const targetSlider = card.querySelector(`[data-size="subSize"]`);
+            if (prop === 'subEnabled') {
+              if (targetInput) targetInput.disabled = !on;
+              if (targetSlider) targetSlider.disabled = !on;
+            }
+            if (i === state.activeVariation) {
+              state[prop] = on;
+            }
+            const cv = els.bannersGrid.querySelector(`canvas[data-idx="${i}"]`);
+            if (cv) drawBannerForVariation(cv, i);
+          });
+        });
+      });
+
+      // Swap order button (main ↔ sub copy position)
+      const swapBtn = card.querySelector('[data-act="swap-order"]');
+      if (swapBtn) {
+        swapBtn.addEventListener('click', () => {
+          v.swapText = !v.swapText;
+          swapBtn.classList.toggle('swapped', v.swapText);
+          swapBtn.textContent = v.swapText ? '↑↓ 서브가 위 (다시 누르면 원위치)' : '↑↓ 순서 바꾸기';
+          if (i === state.activeVariation) {
+            state.swapText = v.swapText;
+          }
+          const cv = els.bannersGrid.querySelector(`canvas[data-idx="${i}"]`);
+          if (cv) drawBannerForVariation(cv, i);
+          if (i === state.activeVariation) renderObjectOverlay();
+        });
+      }
+
+      // Activate / delete buttons
+      card.querySelector('[data-act="activate"]').addEventListener('click', () => {
+        if (i === state.activeVariation) return;
+        state.activeVariation = i;
+        state.objectSelected = false;
+        applyVariationToState(i);
+        renderVariations();
+        updateActiveStageStyles();
+        renderAll();
+      });
+      card.querySelector('[data-act="delete"]').addEventListener('click', () => {
+        if (state.variations.length <= 1) {
+          showToast('최소 1개 변형은 유지되어야 합니다');
+          return;
+        }
+        state.variations.splice(i, 1);
+        if (state.activeVariation >= state.variations.length) {
+          state.activeVariation = state.variations.length - 1;
+        }
+        applyVariationToState(state.activeVariation);
+        renderVariations();
+        renderBannerGrid();
+        renderAll();
+      });
+
+      els.variationList.appendChild(card);
+    });
+
+    els.variationCount.textContent = `${state.variations.length}/${MAX_VARIATIONS}`;
+    els.addVariationBtn.disabled = state.variations.length >= MAX_VARIATIONS;
+    els.addVariationBtn.style.opacity = state.variations.length >= MAX_VARIATIONS ? '0.4' : '1';
+  }
+
+  els.addVariationBtn.addEventListener('click', () => {
+    if (state.variations.length >= MAX_VARIATIONS) {
+      showToast(`최대 ${MAX_VARIATIONS}개까지 추가할 수 있습니다`);
+      return;
+    }
+    // New variation = duplicate of currently active (so user can tweak)
+    const cur = state.variations[state.activeVariation];
+    const snap = {
+      head: cur.head,
+      headSize: cur.headSize ?? HEAD_SIZE_DEFAULT,
+      sub: cur.sub,
+      subSize: cur.subSize ?? SUB_SIZE_DEFAULT,
+      subEnabled: cur.subEnabled,
+      swapText: !!cur.swapText,
+      disclaimer: cur.disclaimer ?? '',
+    };
+    state.variations.push(snap);
+    state.activeVariation = state.variations.length - 1;
+    state.objectSelected = false;
+    applyVariationToState(state.activeVariation);
+    renderVariations();
+    renderBannerGrid();
+    renderAll();
+    showToast(`변형 ${state.variations.length} 추가됨`);
+  });
+
+  // Apply a variation's saved values to the live state (used during draw + export)
+  function applyVariationToState(idx) {
+    const v = state.variations[idx];
+    if (!v) return;
+    state.head = v.head;
+    state.headSize = v.headSize ?? HEAD_SIZE_DEFAULT;
+    state.sub = v.sub;
+    state.subSize = v.subSize ?? SUB_SIZE_DEFAULT;
+    state.subEnabled = v.subEnabled;
+    state.swapText = !!v.swapText;
+    state.disclaimer = v.disclaimer ?? '';
+  }
+  ['textColor', 'pointColor', 'bgColor'].forEach(key => {
+    els[key].addEventListener('input', () => {
+      state[key] = els[key].value;
+      renderAll();
+    });
+  });
+  els.alignBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      els.alignBtns.forEach(b => b.classList.toggle('active', b === btn));
+      state.align = btn.dataset.align;
+      renderAll();
+    });
+  });
+
+  els.exportMeta.addEventListener('click', () => {
+    const canvas = els.bannersGrid.querySelector(`canvas[data-idx="${state.activeVariation}"]`);
+    if (!canvas) { showToast('활성 변형 캔버스를 찾을 수 없습니다'); return; }
+    drawBannerForVariation(canvas, state.activeVariation);
+    const idx = state.activeVariation + 1;
+    downloadCanvas(canvas, `banner_meta_v${String(idx).padStart(2, '0')}.png`);
+    showToast('현재 변형 PNG 저장 완료');
+  });
+
+  // Lazily load JSZip from CDN for ZIP export
+  function loadJSZip() {
+    if (window.JSZip) return Promise.resolve(window.JSZip);
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+      s.onload = () => resolve(window.JSZip);
+      s.onerror = () => reject(new Error('JSZip 로딩 실패'));
+      document.head.appendChild(s);
+    });
+  }
+
+  els.exportAll.addEventListener('click', async () => {
+    if (state.variations.length === 0) return;
+    els.exportAll.disabled = true;
+    const originalText = els.exportAll.textContent;
+    els.exportAll.textContent = 'ZIP 생성 중…';
+    try {
+      const JSZip = await loadJSZip();
+      const zip = new JSZip();
+      // Use a 1080×1080 offscreen canvas for high-resolution export
+      const exp = document.createElement('canvas');
+      exp.width = 1080; exp.height = 1080;
+
+      for (let i = 0; i < state.variations.length; i++) {
+        drawBannerForVariation(exp, i);
+        const blob = await new Promise(r => exp.toBlob(r, 'image/png'));
+        zip.file(`banner_meta_v${String(i + 1).padStart(2, '0')}.png`, blob);
+      }
+      // applyVariationToState restored inside drawBannerForVariation when idx !== active
+
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `banner_variations_${state.variations.length}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(`${state.variations.length}개 변형 ZIP 저장 완료`);
+    } catch (e) {
+      showToast('ZIP 저장 실패: ' + e.message);
+    } finally {
+      els.exportAll.disabled = false;
+      els.exportAll.textContent = originalText;
+    }
+  });
+
+  // Helper to programmatically insert a file as if it were uploaded to a target
+  async function pasteToTarget(file) {
+    const { img } = await loadImageFromFile(file);
+    state.objectImage = img;
+    renderObjectThumb(img, file);
+    showToast('오브제에 붙여넣기 완료');
+    renderAll();
+  }
+
+  // Paste support for banner tab
+  document.addEventListener('paste', (e) => {
+    const activePane = $('.tab-pane.active')?.dataset.pane;
+    if (activePane !== 'banner') return;
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) pasteToTarget(file);
+        break;
+      }
+    }
+  });
+
+  // Initial paste target
+  setPasteTarget('object');
+
+  // ====================================================
+  // ---- Design History (localStorage-backed) ----
+  // ====================================================
+  const HISTORY_KEY = 'visual-factory-banner-history-v1';
+  let history = [];
+
+  function loadHistoryFromStorage() {
+    try {
+      const raw = localStorage.getItem(HISTORY_KEY);
+      if (raw) history = JSON.parse(raw) || [];
+    } catch (e) { history = []; }
+  }
+  function saveHistoryToStorage() {
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    } catch (e) {
+      showToast('히스토리 저장 실패: 용량 초과 (오래된 항목을 삭제해보세요)');
+    }
+  }
+
+  function formatTime(ts) {
+    const now = Date.now();
+    const diff = now - ts;
+    const min = Math.floor(diff / 60000);
+    const hr = Math.floor(diff / 3600000);
+    if (min < 1) return '방금 전';
+    if (min < 60) return `${min}분 전`;
+    if (hr < 24) return `${hr}시간 전`;
+    const d = new Date(ts);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+
+  function captureThumbnail() {
+    const activeCanvas = els.bannersGrid.querySelector(`canvas[data-idx="${state.activeVariation}"]`);
+    if (!activeCanvas) return null;
+    const t = document.createElement('canvas');
+    t.width = 200; t.height = 200;
+    const tctx = t.getContext('2d');
+    tctx.drawImage(activeCanvas, 0, 0, 200, 200);
+    return t.toDataURL('image/png');
+  }
+
+  function imageToDataURL(img) {
+    if (!img) return null;
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth || img.width;
+    c.height = img.naturalHeight || img.height;
+    c.getContext('2d').drawImage(img, 0, 0);
+    return c.toDataURL('image/png');
+  }
+
+  function saveDesign() {
+    const thumb = captureThumbnail();
+    const objImg = state.objectImage ? imageToDataURL(state.objectImage) : null;
+    const design = {
+      id: 'd_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+      name: '디자인 ' + (history.length + 1),
+      timestamp: Date.now(),
+      thumbnail: thumb,
+      snapshot: {
+        variations: JSON.parse(JSON.stringify(state.variations)),
+        activeVariation: state.activeVariation,
+        objectImageData: objImg,
+        objectX: state.objectX, objectY: state.objectY,
+        objectW: state.objectW, objectH: state.objectH,
+        logoVariant: state.logoVariant,
+        textColor: state.textColor,
+        pointColor: state.pointColor,
+        bgColor: state.bgColor,
+        align: state.align,
+      }
+    };
+    history.unshift(design);
+    saveHistoryToStorage();
+    renderHistory();
+    showToast(`"${design.name}" 저장 완료`);
+  }
+
+  function loadDesign(id) {
+    const design = history.find(d => d.id === id);
+    if (!design) return;
+    const s = design.snapshot;
+
+    // Restore variations + active
+    state.variations = JSON.parse(JSON.stringify(s.variations));
+    // Migrate legacy variations (disclaimerIndex -> disclaimer string) for backward compat
+    state.variations.forEach(v => {
+      if (typeof v.disclaimer !== 'string' && typeof v.disclaimerIndex === 'number' && Array.isArray(s.disclaimerLibrary)) {
+        v.disclaimer = s.disclaimerLibrary[v.disclaimerIndex] || '';
+        delete v.disclaimerIndex;
+      }
+    });
+    state.activeVariation = Math.min(s.activeVariation || 0, state.variations.length - 1);
+
+    // Restore object position/size
+    state.objectX = s.objectX; state.objectY = s.objectY;
+    state.objectW = s.objectW; state.objectH = s.objectH;
+    state.objectSelected = false;
+
+    // Restore non-text live state
+    state.logoVariant = s.logoVariant;
+    state.textColor = s.textColor;
+    state.pointColor = s.pointColor;
+    state.bgColor = s.bgColor;
+    state.align = s.align;
+
+    // Sync color palette inputs and toggles
+    [
+      ['#bannerTextColor', state.textColor],
+      ['#bannerPointColor', state.pointColor],
+      ['#bannerBgColor', state.bgColor],
+    ].forEach(([sel, val]) => {
+      const inp = $(sel);
+      if (inp) {
+        inp.value = val;
+        inp.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+    els.logoVariantBtns.forEach(b => b.classList.toggle('active', b.dataset.variant === state.logoVariant));
+    els.alignBtns.forEach(b => b.classList.toggle('active', b.dataset.align === state.align));
+
+    applyVariationToState(state.activeVariation);
+
+    // Restore object image (async)
+    const finalize = () => {
+      renderVariations();
+      renderBannerGrid();
+      renderAll();
+      showToast(`"${design.name}" 불러오기 완료`);
+    };
+    if (s.objectImageData) {
+      const img = new Image();
+      img.onload = () => { state.objectImage = img; finalize(); };
+      img.onerror = () => { state.objectImage = null; finalize(); };
+      img.src = s.objectImageData;
+    } else {
+      state.objectImage = null;
+      finalize();
+    }
+  }
+
+  function deleteDesign(id) {
+    history = history.filter(d => d.id !== id);
+    saveHistoryToStorage();
+    renderHistory();
+  }
+
+  function renameDesign(id, newName) {
+    const d = history.find(x => x.id === id);
+    if (!d) return;
+    d.name = newName.trim() || d.name;
+    saveHistoryToStorage();
+  }
+
+  function renderHistory() {
+    els.historyList.innerHTML = '';
+    els.historyCount.textContent = history.length;
+    if (history.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'history-empty';
+      empty.textContent = '저장된 디자인 없음';
+      els.historyList.appendChild(empty);
+      return;
+    }
+    history.forEach(d => {
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      item.innerHTML = `
+        <div class="history-thumb" style="background-image: url(${d.thumbnail || ''});"></div>
+        <div class="history-meta">
+          <input class="history-name" type="text" value="${escapeHtml(d.name)}" data-id="${d.id}">
+          <span class="history-time">${formatTime(d.timestamp)}</span>
+          <div class="history-actions">
+            <button type="button" class="h-load" data-id="${d.id}">불러오기</button>
+            <button type="button" class="h-delete" data-id="${d.id}" title="삭제">×</button>
+          </div>
+        </div>
+      `;
+      item.querySelector('.h-load').addEventListener('click', () => loadDesign(d.id));
+      item.querySelector('.h-delete').addEventListener('click', () => {
+        if (confirm(`"${d.name}" 삭제하시겠습니까?`)) deleteDesign(d.id);
+      });
+      const nameInput = item.querySelector('.history-name');
+      nameInput.addEventListener('blur', () => renameDesign(d.id, nameInput.value));
+      nameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); nameInput.blur(); }
+      });
+      els.historyList.appendChild(item);
+    });
+  }
+
+  els.saveDesignBtn.addEventListener('click', saveDesign);
+  loadHistoryFromStorage();
+  renderHistory();
+
+  // Auto-load default brand logos (no UI thumbnails)
+  function loadDefaultLogo(dataUrl, slot) {
+    const img = new Image();
+    img.onload = () => {
+      state[slot] = img;
+      renderAll();
+    };
+    img.src = dataUrl;
+  }
+  loadDefaultLogo(DEFAULT_LOGO_BLACK, 'logoBlack');
+  loadDefaultLogo(DEFAULT_LOGO_WHITE, 'logoWhite');
+
+  // Initial render: cards + grid + draw
+  renderVariations();
+  renderBannerGrid();
+  renderAll();
+
+  return { state };
+})();
+
+// Attach custom color palette to all hidden inputs marked with data-palette
+initColorPalettes();
+
+</script>
+</body>
+</html>
